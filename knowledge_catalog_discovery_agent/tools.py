@@ -141,6 +141,7 @@ def knowledge_catalog_multi_search(
         for q in queries
     ]
 
+    # Retrieve and process search results from each parallel execution, logging any issues
     for i, future in enumerate(future_to_query):
       query = queries[i]
       try:
@@ -177,6 +178,7 @@ def _deduplicate_and_fetch_context(
 
   max_depth = max((len(res) for res in query_results_list), default=0)
 
+  # Interleave and deduplicate results from different queries round-robin style to preserve relevance order
   for depth in range(max_depth):
     for result_set in query_results_list:
       if depth < len(result_set):
