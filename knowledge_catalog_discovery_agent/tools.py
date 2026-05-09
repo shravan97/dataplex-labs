@@ -13,7 +13,7 @@ MAX_WORKERS = 5
 
 
 def _lookup_context(region: str, batch_entries: list[str]) -> str:
-  """Calls LookupContext API via the Google Cloud Dataplex Python SDK."""
+  """Calls LookupContext API via the Google Cloud Knowledge Catalog Python SDK."""
   try:
     consumer_project_id = get_consumer_project()
   except ValueError as e:
