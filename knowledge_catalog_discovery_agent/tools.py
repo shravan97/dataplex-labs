@@ -4,12 +4,21 @@ import concurrent.futures
 import logging
 import os
 
+from google.api_core import retry
 from google.api_core.exceptions import PermissionDenied
 from google.cloud import dataplex_v1
 
 from .utils import get_consumer_project
 
 MAX_WORKERS = 5
+
+TRANSIENT_RETRY = retry.Retry(
+    predicate=retry.if_transient_error,
+    initial=2.0,
+    maximum=2.0,
+    multiplier=1.0,
+    timeout=9.0,
+)
 
 
 def _lookup_context(region: str, batch_entries: list[str]) -> str:
@@ -33,7 +42,7 @@ def _lookup_context(region: str, batch_entries: list[str]) -> str:
         parent_name,
         batch_entries,
     )
-    response = client.lookup_context(request=request)
+    response = client.lookup_context(request=request, retry=TRANSIENT_RETRY)
     return response.context
   except Exception as e:  # pylint: disable=broad-except
     logging.warning(
@@ -78,7 +87,8 @@ def _knowledge_catalog_search(
             "query": query,
             "page_size": 50,
             "semantic_search": True,
-        }
+        },
+        retry=TRANSIENT_RETRY,
     )
 
     entries = [
